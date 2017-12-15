@@ -4,45 +4,41 @@ import java.util.Random;
 
 public class Etat {
 
-    private int t;
-    private int tmax;
     private int N;
     private int[] DIR = {N, N + 1, 1, 1 - N, -N, -N - 1, -1, -1 + N};
-    private int[][] tval;
+    private int[] tval;
 
-    Etat(int N, int tmax) {
+    Etat(int N) {
         this.N = N;
-        this.tmax = tmax;
-
-        tval = new int[N * N][tmax];
-        Random R = new Random();
-        for (int k = 0; k < N * N; k++) {
-            boolean b = R.nextBoolean();
-            tval[k][t] = b ? 1 : 0;
-        }
+        tval = new int[N * N];
         for (int i = 0; i < N; i++)
             for (int j = 0; j < N; j++)
                 if (i == 0 || i == N - 1 || j == 0 || j == N - 1)
-                    tval[i + N * j][t] = 2;
+                    tval[i + N * j] = 2;
+    }
+
+    public void randomInit() {
+        Random R = new Random();
+        for (int i = 1; i < N-1; i++)
+            for (int j = 1; j < N - 1; j++)
+                tval[i + N * j] = R.nextBoolean() ? 1 : 0;
     }
 
     public Etat evol() {
-
+        Etat etat = new Etat(N);
         for (int k = 0; k < N * N; k++) {
-            if (tval[k][t] != 2) {
+            if (tval[k] != 2) {
                 int S = 0;
                 for (int d : DIR) {
-                    S += tval[k + d][t];
+                    S += tval[k + d];
                 }
-                tval[k][t + 1] = F(tval[k][t], S);
+                etat.tval[k] = F(S);
             }
         }
-        Etat etat = new Etat(N, tmax);
-        etat.tval = tval;
         return etat;
     }
 
-    private int F(int O, int S) {
+    private int F(int S) {
         if (S <= 3 || S >= 7) return 0;
         else return 1;
 
@@ -53,7 +49,7 @@ public class Etat {
         StringBuilder ret = new StringBuilder();
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                ret.append(tval[i + N * j][t]).append(" ");
+                ret.append(tval[i + N * j]).append(" ");
             }
             ret.append('\n');
         }
